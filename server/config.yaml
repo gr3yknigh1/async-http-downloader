@@ -1,19 +1,19 @@
 files:
-  - my_pretty_archive:
+  - name: some_file
+    file: file.txt
+    actions:
+      - download
+  - name: neasted_archive
     file: archive.zip
     actions:
       - download
       - unpack
-  - my_text_file:
-    file: text_file
-    actions:
-      - download
-  - my_internal_archive:
-    file: internal.7z
+  - name: inner_archive
+    file: inner.7z
     actions:
       - unpack
     dependencies:
-      - my_pretty_archive
+      - neasted_archive
 
 host: "http://127.0.0.1:5000"
 target: "/api/files/"
