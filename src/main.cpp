@@ -48,5 +48,12 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
+    const std::string host = configYaml["host"].as<std::string>();
+    const std::string target = configYaml["target"].as<std::string>();
+
+    // TODO: Add debug configuration
+    std::printf("HOST: %s\n", host.c_str());
+    std::printf("TARGET: %s\n", target.c_str());
+
     return EXIT_SUCCESS;
 }
