@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 #include <yaml-cpp/yaml.h>
@@ -9,6 +10,14 @@ enum Action
     Unknown,
     Download,
     Unpack,
+};
+
+struct Task
+{
+    std::string name;
+    std::string file;
+    std::vector<Action> actions;
+    std::weak_ptr<Task> require;
 };
 
 const char *CONFIG_HOST_FIELD = "host";
