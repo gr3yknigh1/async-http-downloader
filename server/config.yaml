@@ -15,5 +15,5 @@ files:
     dependencies:
       - my_pretty_archive
 
-host: "hostname.com"
+host: "http://127.0.0.1:5000"
 target: "/api/files/"
