@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(async-http-downloader CXX)
+enable_language(CXX)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(SOURCES_DIR "${CMAKE_CURRENT_LIST_DIR}/src")
 set(INCLUDE_DIR "${CMAKE_CURRENT_LIST_DIR}/include")
 
