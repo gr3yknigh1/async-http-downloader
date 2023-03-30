@@ -53,15 +53,16 @@ int main(int argc, const char **argv)
         }
     }
 
-    if (!configYaml["files"].IsSequence())
+    if (!configYaml[CONFIG_FILES_FIELD].IsSequence())
     {
         std::fprintf(stderr, "ERROR: 'files' field isn't sequence\n");
         return EXIT_FAILURE;
     }
 
-    const std::string host = configYaml["host"].as<std::string>();
-    const std::string target = configYaml["target"].as<std::string>();
 
+    const std::string host = configYaml[CONFIG_HOST_FIELD].as<std::string>();
+    const std::string target =
+        configYaml[CONFIG_TARGET_FIELD].as<std::string>();
 
     return EXIT_SUCCESS;
 }
