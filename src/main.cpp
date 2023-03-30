@@ -4,7 +4,18 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
-const char *REQUIRED_CONFIG_FIELDS[] = {"files", "host", "target"};
+const char *CONFIG_HOST_FIELD = "host";
+const char *CONFIG_TARGET_FIELD = "target";
+const char *CONFIG_FILES_FIELD = "files";
+const char *REQUIRED_CONFIG_FIELDS[] = {CONFIG_HOST_FIELD, CONFIG_TARGET_FIELD,
+                                        CONFIG_FILES_FIELD};
+
+const char *FILE_NAME_FIELD = "name";
+const char *FILE_FILE_FIELD = "file";
+const char *FILE_ACTIONS_FIELD = "actions";
+const char *FILE_DEPENDENCIES_FIELD = "dependencies";
+const char *REQUIRED_FILE_FIELDS[] = {FILE_NAME_FIELD, FILE_FILE_FIELD,
+                                      FILE_ACTIONS_FIELD};
 
 int main(int argc, const char **argv)
 {
