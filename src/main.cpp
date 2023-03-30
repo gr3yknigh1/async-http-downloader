@@ -4,6 +4,13 @@
 #include <vector>
 #include <yaml-cpp/yaml.h>
 
+enum Action
+{
+    Unknown,
+    Download,
+    Unpack,
+};
+
 const char *CONFIG_HOST_FIELD = "host";
 const char *CONFIG_TARGET_FIELD = "target";
 const char *CONFIG_FILES_FIELD = "files";
