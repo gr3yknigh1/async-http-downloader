@@ -42,5 +42,11 @@ int main(int argc, const char **argv)
         }
     }
 
+    if (!configYaml["files"].IsSequence())
+    {
+        std::fprintf(stderr, "ERROR: 'files' field isn't sequence\n");
+        return EXIT_FAILURE;
+    }
+
     return EXIT_SUCCESS;
 }
