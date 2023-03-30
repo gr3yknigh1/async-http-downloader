@@ -47,7 +47,7 @@ int main(int argc, const char **argv)
     {
         if (!configYaml[field])
         {
-            std::fprintf(stderr, "ERROR: missing required config field: '%s'",
+            std::fprintf(stderr, "ERROR: missing required config field: '%s'\n",
                          field);
             return EXIT_FAILURE;
         }
