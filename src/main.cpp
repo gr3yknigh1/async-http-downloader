@@ -75,6 +75,32 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
+    for (const auto fileYaml : configYaml[CONFIG_FILES_FIELD])
+    {
+        for (auto field : REQUIRED_FILE_FIELDS)
+        {
+            if (!fileYaml[field])
+            {
+                std::fprintf(stderr,
+                             "ERROR: missing required file field: '%s'\n",
+                             field);
+                return EXIT_FAILURE;
+            }
+        }
+
+        for (auto action : fileYaml[FILE_ACTIONS_FIELD])
+        {
+        }
+
+        if (fileYaml[FILE_DEPENDENCIES_FIELD])
+        {
+            auto dependencies = fileYaml[FILE_DEPENDENCIES_FIELD]
+                                    .as<std::vector<std::string>>();
+            for (auto dependency : dependencies)
+            {
+            }
+        }
+    }
 
     const std::string host = configYaml[CONFIG_HOST_FIELD].as<std::string>();
     const std::string target =
