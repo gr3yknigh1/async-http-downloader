@@ -1,0 +1,19 @@
+files:
+  - my_pretty_archive:
+    file: archive.zip
+    actions:
+      - download
+      - unpack
+  - my_text_file:
+    file: text_file
+    actions:
+      - download
+  - my_internal_archive:
+    file: internal.7z
+    actions:
+      - unpack
+    dependencies:
+      - my_pretty_archive
+
+host: "hostname.com"
+target: "/api/files/"
