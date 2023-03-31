@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <iostream>
-#include <memory>
 #include <string>
 #include <vector>
 #include <yaml-cpp/yaml.h>
@@ -17,7 +16,7 @@ struct Task
     std::string name;
     std::string file;
     std::vector<Action> actions;
-    std::weak_ptr<Task> require;
+    std::vector<Task> dependencies;
 };
 
 const char *CONFIG_HOST_FIELD = "host";
