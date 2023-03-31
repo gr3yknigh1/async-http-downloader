@@ -40,7 +40,7 @@ int main(int argc, const char **argv)
         return EXIT_SUCCESS;
     }
 
-    std::filesystem::path configPath(argv[1]);
+    const std::filesystem::path configPath(argv[1]);
 
     if (!std::filesystem::exists(configPath))
     {
@@ -49,7 +49,7 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
-    YAML::Node configYaml = YAML::LoadFile(configPath);
+    const YAML::Node configYaml = YAML::LoadFile(configPath);
 
     // NOTE: Added in order to exclude invalid yaml files
     if (!configYaml.IsMap())
@@ -76,7 +76,7 @@ int main(int argc, const char **argv)
 
     for (const auto fileYaml : configYaml[CONFIG_FILES_FIELD])
     {
-        for (auto field : REQUIRED_FILE_FIELDS)
+        for (const auto field : REQUIRED_FILE_FIELDS)
         {
             if (!fileYaml[field])
             {
@@ -87,15 +87,15 @@ int main(int argc, const char **argv)
             }
         }
 
-        for (auto action : fileYaml[FILE_ACTIONS_FIELD])
+        for (const auto action : fileYaml[FILE_ACTIONS_FIELD])
         {
         }
 
         if (fileYaml[FILE_DEPENDENCIES_FIELD])
         {
-            auto dependencies = fileYaml[FILE_DEPENDENCIES_FIELD]
-                                    .as<std::vector<std::string>>();
-            for (auto dependency : dependencies)
+            const auto dependencies = fileYaml[FILE_DEPENDENCIES_FIELD]
+                                          .as<std::vector<std::string>>();
+            for (const auto dependency : dependencies)
             {
             }
         }
