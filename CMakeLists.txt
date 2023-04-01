@@ -12,12 +12,14 @@ set(VENDOR_DIR "${CMAKE_CURRENT_LIST_DIR}/vendor")
 file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${SOURCES_DIR}/*.cpp")
 
 add_subdirectory("${VENDOR_DIR}/yaml-cpp")
+add_subdirectory("${VENDOR_DIR}/zlib")
 
 add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE zlibstatic)
 
 target_include_directories(${PROJECT_NAME}
     PRIVATE ${INCLUDE_DIR}
