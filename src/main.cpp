@@ -1,22 +1,39 @@
+#include <cassert>
 #include <filesystem>
+#include <fstream>
+#include <future>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include <HTTPRequest.hpp>
+#include <bit7z/bit7z.hpp>
 #include <yaml-cpp/yaml.h>
 
-enum Action
+enum FileAction
 {
     Unknown,
     Download,
     Unpack,
 };
 
-struct Task
+struct FileTask
 {
     std::string name;
     std::string file;
-    std::vector<Action> actions;
-    std::vector<Task> dependencies;
+    std::vector<FileAction> actions;
+    std::vector<std::string> dependencies;
+};
+
+class FileJobScheduler
+{
+public:
+    FileJobScheduler()
+    {
+    }
+
+private:
+    std::vector<FileTask> tasks;
 };
 
 const char *CONFIG_HOST_FIELD = "host";
@@ -104,6 +121,62 @@ int main(int argc, const char **argv)
     const std::string host = configYaml[CONFIG_HOST_FIELD].as<std::string>();
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
+
+    std::cout << "HOST: " << host << '\n';
+    std::cout << "TARG: " << target << '\n';
+
+    try
+    {
+        const std::string requestUrl = host + target + "file.txt";
+        std::cout << "REQUEST: " << requestUrl << '\n';
+
+        http::Request request{requestUrl};
+        const auto response = request.send("GET");
+        std::cout << std::string{response.body.begin(), response.body.end()}
+                  << '\n';
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "ERROR: Request failed, error: " << e.what() << '\n';
+    }
+
+    const std::string fileName = "archive.zip";
+    try
+    {
+        const std::string requestUrl = host + target + fileName;
+        std::cout << "REQUEST: " << requestUrl << '\n';
+
+        http::Request request{requestUrl};
+        const auto response = request.send("GET");
+        std::cout << std::string{response.body.begin(), response.body.end()}
+                  << '\n';
+
+        std::ofstream fileOutputStream(fileName);
+        for (const auto c : response.body)
+        {
+            fileOutputStream << c;
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "ERROR: Request failed, error: " << e.what() << '\n';
+    }
+
+    try
+    {
+        using namespace bit7z;
+
+        Bit7zLibrary lib{"/lib/p7zip/7z.so"};
+        BitFileExtractor extractor{lib, BitFormat::Auto};
+
+        // extracting a simple archive
+        std::printf("INFO: File '%s'\n", fileName.c_str());
+        extractor.extract(fileName, ".");
+    }
+    catch (const bit7z::BitException &ex)
+    {
+        std::cerr << "Error during extraction: " << ex.what() << '\n';
+    }
 
     return EXIT_SUCCESS;
 }
