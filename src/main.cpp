@@ -72,18 +72,14 @@ private:
     const std::filesystem::path m_ArchivePath;
     const std::filesystem::path m_DestanationPath;
 
-    static const std::filesystem::path s_7zLibPath;
-    static const std::unique_ptr<bit7z::Bit7zLibrary> s_7zLib;
-    static const std::unique_ptr<bit7z::BitFileExtractor> s_7zExtractor;
+    // TODO: Handle Window's dll
+    inline static const std::filesystem::path s_7zLibPath = "./lib/7z.so";
+    inline static const std::unique_ptr<bit7z::Bit7zLibrary> s_7zLib =
+        std::make_unique<bit7z::Bit7zLibrary>(UnpackAction::s_7zLibPath);
+    inline static const std::unique_ptr<bit7z::BitFileExtractor> s_7zExtractor =
+        std::make_unique<bit7z::BitFileExtractor>(*UnpackAction::s_7zLib.get(),
+                                                  bit7z::BitFormat::Auto);
 };
-
-// TODO: Handle Window's dll
-const std::filesystem::path UnpackAction::s_7zLibPath = "./lib/7z.so";
-const auto UnpackAction::s_7zLib =
-    std::make_unique<bit7z::Bit7zLibrary>(UnpackAction::s_7zLibPath);
-const auto UnpackAction::s_7zExtractor =
-    std::make_unique<bit7z::BitFileExtractor>(*UnpackAction::s_7zLib,
-                                              bit7z::BitFormat::Auto);
 
 struct FileTask
 {
@@ -171,6 +167,8 @@ int main(int argc, const char **argv)
                 return EXIT_FAILURE;
             }
         }
+
+        std::cout << fileYaml << '\n';
 
         for (const auto action : fileYaml[FILE_ACTIONS_FIELD])
         {
