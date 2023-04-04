@@ -12,7 +12,21 @@
 
 #include "ahd/Action.hpp"
 #include "ahd/DownloadAction.hpp"
+#include "ahd/FileTask.hpp"
 #include "ahd/UnpackAction.hpp"
+
+const char *CONFIG_HOST_FIELD = "host";
+const char *CONFIG_TARGET_FIELD = "target";
+const char *CONFIG_FILES_FIELD = "files";
+const std::vector<const char *> REQUIRED_CONFIG_FIELDS = {
+    CONFIG_HOST_FIELD, CONFIG_TARGET_FIELD, CONFIG_FILES_FIELD};
+
+const char *FILE_NAME_FIELD = "name";
+const char *FILE_FILE_FIELD = "file";
+const char *FILE_ACTIONS_FIELD = "actions";
+const char *FILE_DEPENDENCIES_FIELD = "dependencies";
+const std::vector<const char *> REQUIRED_FILE_FIELDS = {
+    FILE_NAME_FIELD, FILE_FILE_FIELD, FILE_ACTIONS_FIELD};
 
 const std::vector<const char *> FindMissingFields(
     YAML::Node node, const std::vector<const char *> requiredFields)
@@ -30,27 +44,6 @@ const std::vector<const char *> FindMissingFields(
 
     return missingFields;
 }
-
-struct FileTask
-{
-    std::string name;
-    std::string file;
-    std::vector<Action> actions;
-    std::vector<std::string> dependencies;
-};
-
-const char *CONFIG_HOST_FIELD = "host";
-const char *CONFIG_TARGET_FIELD = "target";
-const char *CONFIG_FILES_FIELD = "files";
-const std::vector<const char *> REQUIRED_CONFIG_FIELDS = {
-    CONFIG_HOST_FIELD, CONFIG_TARGET_FIELD, CONFIG_FILES_FIELD};
-
-const char *FILE_NAME_FIELD = "name";
-const char *FILE_FILE_FIELD = "file";
-const char *FILE_ACTIONS_FIELD = "actions";
-const char *FILE_DEPENDENCIES_FIELD = "dependencies";
-const std::vector<const char *> REQUIRED_FILE_FIELDS = {
-    FILE_NAME_FIELD, FILE_FILE_FIELD, FILE_ACTIONS_FIELD};
 
 int main(int argc, const char **argv)
 {
