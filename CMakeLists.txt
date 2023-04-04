@@ -14,7 +14,6 @@ file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${SOURCES_DIR}/*.cpp")
 add_definitions(-DBIT7Z_AUTO_FORMAT)
 
 add_subdirectory("${VENDOR_DIR}/yaml-cpp")
-add_subdirectory("${VENDOR_DIR}/zlib")
 add_subdirectory("${VENDOR_DIR}/bit7z")
 
 add_executable(${PROJECT_NAME})
@@ -22,7 +21,6 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp)
-target_link_libraries(${PROJECT_NAME} PRIVATE zlibstatic)
 target_link_libraries(${PROJECT_NAME} PRIVATE bit7z64)
 
 target_include_directories(${PROJECT_NAME}

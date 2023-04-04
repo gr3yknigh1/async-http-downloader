@@ -1,9 +1,6 @@
 [submodule "vendor/yaml-cpp"]
 	path = vendor/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
-[submodule "vendor/zlib"]
-	path = vendor/zlib
-	url = https://github.com/madler/zlib
 [submodule "vendor/bit7z"]
 	path = vendor/bit7z
 	url = https://github.com/rikyoz/bit7z
