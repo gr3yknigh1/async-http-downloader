@@ -78,7 +78,7 @@ int main(int argc, const char **argv)
     if (missingFields.size() != 0)
     {
         std::fprintf(stderr, "ERROR: missing required config fields: ");
-        for (const auto &missingField : missingFields)
+        for (const char *missingField : missingFields)
         {
             std::fprintf(stderr, "'%s' ", missingField);
         }
@@ -110,7 +110,7 @@ int main(int argc, const char **argv)
             std::fprintf(
                 stderr,
                 "ERROR: missing required file fields at index %ld: ", i);
-            for (const auto &missingField : missingFields)
+            for (const char *missingField : missingFields)
             {
                 std::fprintf(stderr, "'%s' ", missingField);
             }
@@ -122,7 +122,7 @@ int main(int argc, const char **argv)
         fileTask.file = fileYaml[FILE_FILE_FIELD].as<std::string>();
         fileTask.actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
 
-        for (const auto actionYaml : fileYaml[FILE_ACTIONS_FIELD])
+        for (const YAML::Node actionYaml : fileYaml[FILE_ACTIONS_FIELD])
         {
             const std::string actionString = actionYaml.as<std::string>();
             if (actionString == "download")
