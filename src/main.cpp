@@ -1,4 +1,3 @@
-#include <cassert>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -176,6 +175,7 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
+    // NOTE: Parsing config file
     const std::string host = configYaml[CONFIG_HOST_FIELD].as<std::string>();
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
@@ -222,19 +222,25 @@ int main(int argc, const char **argv)
             }
             else
             {
-                // TODO: Throw error
+                std::printf("ERROR: Unknown action at %lu: '%s'\n", i,
+                            actionString.c_str());
+                return EXIT_FAILURE;
             }
         }
 
         if (fileYaml[FILE_DEPENDENCIES_FIELD])
         {
-            const auto dependencies = fileYaml[FILE_DEPENDENCIES_FIELD]
-                                          .as<std::vector<std::string>>();
-            for (const auto dependency : dependencies)
+            fileTask.dependencies.reserve(
+                fileYaml[FILE_DEPENDENCIES_FIELD].size());
+            for (const auto dependencyYaml : fileYaml[FILE_DEPENDENCIES_FIELD])
             {
+                fileTask.dependencies.emplace_back(
+                    dependencyYaml.as<std::string>());
             }
         }
     }
+
+    // NOTE: Validating deps
 
     return EXIT_SUCCESS;
 }
