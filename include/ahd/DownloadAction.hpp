@@ -13,7 +13,7 @@ public:
     DownloadAction(const std::string &requestUrl,
                    const std::filesystem::path &outputPath);
 
-    void Execute(void) const override;
+    virtual void Execute(void) const override;
 
 private:
     const std::string m_RequestUrl;

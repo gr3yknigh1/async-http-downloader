@@ -2,7 +2,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
-#include <future>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -15,6 +14,7 @@
 #include "ahd/Action.hpp"
 #include "ahd/DownloadAction.hpp"
 #include "ahd/FileTask.hpp"
+#include "ahd/FileTaskRunner.hpp"
 #include "ahd/UnpackAction.hpp"
 
 const char *CONFIG_HOST_FIELD = "host";
@@ -97,7 +97,7 @@ int main(int argc, const char **argv)
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
 
-    std::unordered_map<std::string, FileTask> fileTasks = {};
+    std::unordered_map<std::string, FileTask *> fileTasks = {};
     fileTasks.reserve(configYaml[CONFIG_FILES_FIELD].size());
 
     for (uint64_t i = 0; i < configYaml[CONFIG_FILES_FIELD].size(); ++i)
@@ -118,9 +118,9 @@ int main(int argc, const char **argv)
             return EXIT_FAILURE;
         }
 
-        FileTask fileTask;
-        fileTask.file = fileYaml[FILE_FILE_FIELD].as<std::string>();
-        fileTask.actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
+        FileTask *fileTask = new FileTask;
+        fileTask->file = fileYaml[FILE_FILE_FIELD].as<std::string>();
+        // fileTask.actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
 
         for (const YAML::Node actionYaml : fileYaml[FILE_ACTIONS_FIELD])
         {
@@ -128,13 +128,14 @@ int main(int argc, const char **argv)
             if (actionString == "download")
             {
                 // TODO: Add option for working directory
-                fileTask.actions.emplace_back(DownloadAction(
-                    host + target + fileTask.file, fileTask.file));
+                fileTask->actions.push_back(new DownloadAction(
+                    host + target + fileTask->file, fileTask->file));
             }
             else if (actionString == "unpack")
             {
                 // TODO: Add option for unpack directory
-                fileTask.actions.emplace_back(UnpackAction(fileTask.file, "."));
+                fileTask->actions.push_back(
+                    new UnpackAction(fileTask->file, "."));
             }
             else
             {
@@ -146,12 +147,12 @@ int main(int argc, const char **argv)
 
         if (fileYaml[FILE_DEPENDENCIES_FIELD])
         {
-            fileTask.dependencies.reserve(
+            fileTask->dependencies.reserve(
                 fileYaml[FILE_DEPENDENCIES_FIELD].size());
             for (const YAML::Node dependencyYaml :
                  fileYaml[FILE_DEPENDENCIES_FIELD])
             {
-                fileTask.dependencies.emplace_back(
+                fileTask->dependencies.emplace_back(
                     dependencyYaml.as<std::string>());
             }
         }
@@ -160,12 +161,12 @@ int main(int argc, const char **argv)
     }
 
     // NOTE: Validating deps
-    for (const std::pair<std::string, FileTask> &pair : fileTasks)
+    for (const std::pair<std::string, FileTask *> &pair : fileTasks)
     {
         const std::string currentTaskName = pair.first;
-        const FileTask currentFileTask = pair.second;
+        const FileTask *currentFileTask = pair.second;
 
-        for (const std::string &dependency : currentFileTask.dependencies)
+        for (const std::string &dependency : currentFileTask->dependencies)
         {
             // NOTE: Searching non-existing deps
             const auto search = fileTasks.find(dependency);
@@ -187,8 +188,8 @@ int main(int argc, const char **argv)
             }
 
             // NOTE: Searching cirqle deps
-            const FileTask dependencyTask = search->second;
-            const auto dependencyTaskDeps = dependencyTask.dependencies;
+            const FileTask *dependencyTask = search->second;
+            const auto dependencyTaskDeps = dependencyTask->dependencies;
             if (std::find(dependencyTaskDeps.begin(), dependencyTaskDeps.end(),
                           currentTaskName) != dependencyTaskDeps.end())
             {
@@ -200,6 +201,9 @@ int main(int argc, const char **argv)
             }
         }
     }
+
+    const FileTaskRunner ftr(fileTasks);
+    ftr.Run();
 
     return EXIT_SUCCESS;
 }

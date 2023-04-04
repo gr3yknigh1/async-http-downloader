@@ -1,3 +1,4 @@
+#include <iostream>
 #include "ahd/DownloadAction.hpp"
 
 DownloadAction::DownloadAction(const std::string &requestUrl,

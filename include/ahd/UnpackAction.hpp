@@ -12,7 +12,7 @@ public:
     UnpackAction(const std::filesystem::path &archivePath,
                  const std::filesystem::path &destanationPath);
 
-    void Execute(void) const override;
+    virtual void Execute(void) const override;
 
 private:
     const std::filesystem::path m_ArchivePath;
