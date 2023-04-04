@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
@@ -5,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <HTTPRequest.hpp>
@@ -95,7 +97,7 @@ int main(int argc, const char **argv)
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
 
-    std::vector<FileTask> fileTasks;
+    std::unordered_map<std::string, FileTask> fileTasks = {};
     fileTasks.reserve(configYaml[CONFIG_FILES_FIELD].size());
 
     for (uint64_t i = 0; i < configYaml[CONFIG_FILES_FIELD].size(); ++i)
@@ -117,7 +119,6 @@ int main(int argc, const char **argv)
         }
 
         FileTask fileTask;
-        fileTask.name = fileYaml[FILE_NAME_FIELD].as<std::string>();
         fileTask.file = fileYaml[FILE_FILE_FIELD].as<std::string>();
         fileTask.actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
 
@@ -147,15 +148,58 @@ int main(int argc, const char **argv)
         {
             fileTask.dependencies.reserve(
                 fileYaml[FILE_DEPENDENCIES_FIELD].size());
-            for (const auto dependencyYaml : fileYaml[FILE_DEPENDENCIES_FIELD])
+            for (const YAML::Node dependencyYaml :
+                 fileYaml[FILE_DEPENDENCIES_FIELD])
             {
                 fileTask.dependencies.emplace_back(
                     dependencyYaml.as<std::string>());
             }
         }
+
+        fileTasks[fileYaml[FILE_NAME_FIELD].as<std::string>()] = fileTask;
     }
 
     // NOTE: Validating deps
+    for (const std::pair<std::string, FileTask> &pair : fileTasks)
+    {
+        const std::string currentTaskName = pair.first;
+        const FileTask currentFileTask = pair.second;
+
+        for (const std::string &dependency : currentFileTask.dependencies)
+        {
+            // NOTE: Searching non-existing deps
+            const auto search = fileTasks.find(dependency);
+            if (search == fileTasks.end())
+            {
+                std::fprintf(stderr,
+                             "ERROR: Can't find dependency '%s' that '%s' task "
+                             "requires\n",
+                             dependency.c_str(), currentTaskName.c_str());
+                return EXIT_FAILURE;
+            }
+
+            // NOTE: Can't depend on self
+            if (search->first == currentTaskName)
+            {
+                std::fprintf(stderr, "ERROR: Can't depend on self '%s'\n",
+                             currentTaskName.c_str());
+                return EXIT_FAILURE;
+            }
+
+            // NOTE: Searching cirqle deps
+            const FileTask dependencyTask = search->second;
+            const auto dependencyTaskDeps = dependencyTask.dependencies;
+            if (std::find(dependencyTaskDeps.begin(), dependencyTaskDeps.end(),
+                          currentTaskName) != dependencyTaskDeps.end())
+            {
+                std::fprintf(stderr,
+                             "ERROR: Found cirqle dependency between '%s' and "
+                             "'%s' tasks requires\n",
+                             dependency.c_str(), currentTaskName.c_str());
+                return EXIT_FAILURE;
+            }
+        }
+    }
 
     return EXIT_SUCCESS;
 }

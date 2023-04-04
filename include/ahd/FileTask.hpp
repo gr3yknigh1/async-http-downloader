@@ -7,7 +7,6 @@
 
 struct FileTask
 {
-    std::string name;
     std::string file;
     std::vector<Action> actions;
     std::vector<std::string> dependencies;
