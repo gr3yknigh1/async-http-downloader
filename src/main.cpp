@@ -10,18 +10,84 @@
 #include <bit7z/bit7z.hpp>
 #include <yaml-cpp/yaml.h>
 
-enum FileAction
+class Action
 {
-    Unknown,
-    Download,
-    Unpack,
+public:
+    virtual ~Action(void)
+    {
+    }
+    virtual void Execute(void) const
+    {
+    }
 };
+
+class DownloadAction : public Action
+{
+public:
+    DownloadAction(const std::string &requestUrl,
+                   const std::filesystem::path &outputPath)
+        : m_RequestUrl(requestUrl), m_OutputPath(outputPath)
+    {
+    }
+
+    void Execute(void) const override
+    {
+        // TODO: Add try-catch exception for request
+        http::Request request{m_RequestUrl};
+        http::Response response = request.send(GET_REQUEST);
+        std::ofstream outputStream(m_OutputPath);
+
+        for (const auto c : response.body)
+        {
+            outputStream << c;
+        }
+    }
+
+private:
+    const std::string m_RequestUrl;
+    const std::filesystem::path m_OutputPath;
+
+    static const char *GET_REQUEST;
+};
+
+const char *DownloadAction::GET_REQUEST = "GET";
+
+class UnpackAction : public Action
+{
+public:
+    UnpackAction(const std::filesystem::path &archivePath,
+                 const std::filesystem::path &destanationPath)
+        : m_ArchivePath(archivePath), m_DestanationPath(destanationPath)
+    {
+        // TODO: Check if file's path exists
+    }
+
+    void Execute(void) const override
+    {
+        using namespace bit7z;
+
+        // TODO: Handle exception during extraction
+        Bit7zLibrary lib{SEVEN_Z_LIB_PATH};
+        BitFileExtractor extractor{lib, BitFormat::Auto};
+
+        extractor.extract(m_ArchivePath, m_DestanationPath);
+    }
+
+private:
+    const std::filesystem::path m_ArchivePath;
+    const std::filesystem::path m_DestanationPath;
+
+    static const char *SEVEN_Z_LIB_PATH;
+};
+
+// TODO: Handle Window's dll
+const char *UnpackAction::SEVEN_Z_LIB_PATH = "./lib/7z.so";
 
 struct FileTask
 {
     std::string name;
     std::string file;
-    std::vector<FileAction> actions;
+    std::vector<Action> actions;
     std::vector<std::string> dependencies;
 };
 
@@ -125,58 +191,7 @@ int main(int argc, const char **argv)
     std::cout << "HOST: " << host << '\n';
     std::cout << "TARG: " << target << '\n';
 
-    try
-    {
-        const std::string requestUrl = host + target + "file.txt";
-        std::cout << "REQUEST: " << requestUrl << '\n';
-
-        http::Request request{requestUrl};
-        const auto response = request.send("GET");
-        std::cout << std::string{response.body.begin(), response.body.end()}
-                  << '\n';
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "ERROR: Request failed, error: " << e.what() << '\n';
-    }
-
-    const std::string fileName = "archive.zip";
-    try
-    {
-        const std::string requestUrl = host + target + fileName;
-        std::cout << "REQUEST: " << requestUrl << '\n';
-
-        http::Request request{requestUrl};
-        const auto response = request.send("GET");
-        std::cout << std::string{response.body.begin(), response.body.end()}
-                  << '\n';
-
-        std::ofstream fileOutputStream(fileName);
-        for (const auto c : response.body)
-        {
-            fileOutputStream << c;
-        }
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "ERROR: Request failed, error: " << e.what() << '\n';
-    }
-
-    try
-    {
-        using namespace bit7z;
-
-        Bit7zLibrary lib{"/lib/p7zip/7z.so"};
-        BitFileExtractor extractor{lib, BitFormat::Auto};
-
-        // extracting a simple archive
-        std::printf("INFO: File '%s'\n", fileName.c_str());
-        extractor.extract(fileName, ".");
-    }
-    catch (const bit7z::BitException &ex)
-    {
-        std::cerr << "Error during extraction: " << ex.what() << '\n';
-    }
+    const std::string targetRequestUrl = host + target;
 
     return EXIT_SUCCESS;
 }
