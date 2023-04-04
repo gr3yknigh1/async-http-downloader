@@ -3,6 +3,7 @@
 #include <fstream>
 #include <future>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -64,24 +65,25 @@ public:
 
     void Execute(void) const override
     {
-        using namespace bit7z;
-
-        // TODO: Handle exception during extraction
-        Bit7zLibrary lib{SEVEN_Z_LIB_PATH};
-        BitFileExtractor extractor{lib, BitFormat::Auto};
-
-        extractor.extract(m_ArchivePath, m_DestanationPath);
+        s_7zExtractor->extract(m_ArchivePath, m_DestanationPath);
     }
 
 private:
     const std::filesystem::path m_ArchivePath;
     const std::filesystem::path m_DestanationPath;
 
-    static const char *SEVEN_Z_LIB_PATH;
+    static const std::filesystem::path s_7zLibPath;
+    static const std::unique_ptr<bit7z::Bit7zLibrary> s_7zLib;
+    static const std::unique_ptr<bit7z::BitFileExtractor> s_7zExtractor;
 };
 
 // TODO: Handle Window's dll
-const char *UnpackAction::SEVEN_Z_LIB_PATH = "./lib/7z.so";
+const std::filesystem::path UnpackAction::s_7zLibPath = "./lib/7z.so";
+const auto UnpackAction::s_7zLib =
+    std::make_unique<bit7z::Bit7zLibrary>(UnpackAction::s_7zLibPath);
+const auto UnpackAction::s_7zExtractor =
+    std::make_unique<bit7z::BitFileExtractor>(*UnpackAction::s_7zLib,
+                                              bit7z::BitFormat::Auto);
 
 struct FileTask
 {
@@ -187,9 +189,6 @@ int main(int argc, const char **argv)
     const std::string host = configYaml[CONFIG_HOST_FIELD].as<std::string>();
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
-
-    std::cout << "HOST: " << host << '\n';
-    std::cout << "TARG: " << target << '\n';
 
     const std::string targetRequestUrl = host + target;
 
