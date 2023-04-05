@@ -4,7 +4,6 @@
 #include "ahd/Action.hpp"
 #include <HTTPRequest.hpp>
 #include <filesystem>
-#include <fstream>
 #include <string>
 
 class DownloadAction : public Action

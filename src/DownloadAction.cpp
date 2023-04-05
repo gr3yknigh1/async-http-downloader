@@ -1,5 +1,5 @@
-#include <iostream>
 #include "ahd/DownloadAction.hpp"
+#include <fstream>
 
 DownloadAction::DownloadAction(const std::string &requestUrl,
                                const std::filesystem::path &outputPath)
