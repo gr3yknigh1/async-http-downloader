@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 struct Task
 {
@@ -12,5 +13,7 @@ struct Task
     std::vector<std::shared_ptr<Action>> actions;
     std::vector<std::string> dependencies;
 };
+
+using TaskMap = std::unordered_map<std::string, std::shared_ptr<Task>>;
 
 #endif // FILETASK_HPP_
