@@ -4,11 +4,12 @@
 #include "ahd/Action.hpp"
 #include <string>
 #include <vector>
+#include <memory>
 
 struct Task
 {
     std::string file;
-    std::vector<Action *> actions;
+    std::vector<std::shared_ptr<Action>> actions;
     std::vector<std::string> dependencies;
 };
 

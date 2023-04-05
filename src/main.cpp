@@ -203,13 +203,11 @@ private:
         }
     }
 
-    std::vector<Action *> DispatchActionsYaml(uint64_t index,
-                                              const std::string &host,
-                                              const std::string &target,
-                                              std::shared_ptr<Task> task,
-                                              const YAML::Node actionsYaml)
+    std::vector<std::shared_ptr<Action>> DispatchActionsYaml(
+        uint64_t index, const std::string &host, const std::string &target,
+        std::shared_ptr<Task> task, const YAML::Node actionsYaml)
     {
-        std::vector<Action *> actions;
+        std::vector<std::shared_ptr<Action>> actions;
         actions.reserve(actionsYaml.size());
 
         for (const YAML::Node actionYaml : actionsYaml)
@@ -219,13 +217,14 @@ private:
             if (actionString == "download")
             {
                 // TODO: Add option for working directory
-                actions.emplace_back(
-                    new DownloadAction(host + target + task->file, task->file));
+                actions.emplace_back(std::move(std::make_shared<DownloadAction>(
+                    host + target + task->file, task->file)));
             }
             else if (actionString == "unpack")
             {
                 // TODO: Add option for unpack directory
-                actions.emplace_back(new UnpackAction(task->file, "."));
+                actions.emplace_back(
+                    std::move(std::make_shared<UnpackAction>(task->file, ".")));
             }
             else
             {

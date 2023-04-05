@@ -30,7 +30,7 @@ void TaskRunner::Run()
                     }
                 }
 
-                for (const Action *action : fileTask->actions)
+                for (const std::shared_ptr<Action> action : fileTask->actions)
                 {
                     action->Execute();
                 }
