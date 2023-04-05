@@ -2,12 +2,12 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <iostream>
 
 UnpackAction::UnpackAction(const std::filesystem::path &archivePath,
                            const std::filesystem::path &destanationPath)
     : m_ArchivePath(archivePath), m_DestanationPath(destanationPath)
 {
-    // TODO: Check if file's path exists
 }
 
 void UnpackAction::Execute(void) const
@@ -21,5 +21,14 @@ void UnpackAction::Execute(void) const
         std::exit(EXIT_FAILURE);
     }
 
-    s_7zExtractor->extract(m_ArchivePath, m_DestanationPath);
+    try
+    {
+        s_7zExtractor->extract(m_ArchivePath, m_DestanationPath);
+    }
+    catch (const bit7z::BitException &e)
+    {
+        // TODO: Throw exception
+        std::cerr << "Error: " << e.what() << '\n';
+        std::exit(EXIT_FAILURE);
+    }
 }

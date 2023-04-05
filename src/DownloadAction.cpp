@@ -1,5 +1,6 @@
 #include "ahd/DownloadAction.hpp"
 #include <fstream>
+#include <iostream>
 
 DownloadAction::DownloadAction(const std::string &requestUrl,
                                const std::filesystem::path &outputPath)
@@ -9,11 +10,21 @@ DownloadAction::DownloadAction(const std::string &requestUrl,
 
 void DownloadAction::Execute(void) const
 {
-    // TODO: Add try-catch exception for request
-    http::Request request{m_RequestUrl};
-    http::Response response = request.send(GET_REQUEST);
-    std::ofstream outputStream(m_OutputPath);
+    http::Response response;
 
+    try
+    {
+        http::Request request{m_RequestUrl};
+        response = request.send(GET_REQUEST);
+    }
+    catch (const std::exception &e)
+    {
+        // TODO: Throw exception
+        std::cerr << "Error: " << e.what() << '\n';
+        std::exit(EXIT_FAILURE);
+    }
+
+    std::ofstream outputStream(m_OutputPath);
     for (const auto c : response.body)
     {
         outputStream << c;
