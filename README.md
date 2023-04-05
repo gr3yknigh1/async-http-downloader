@@ -49,7 +49,7 @@ python3 ./main.py
 
 - Bad exception handling during `Action` execution in threads
 - Can't execute program in other folder except project's root. This is because
-I'm passing to `bit7z` library 7z's dll path hardcoded (possibly just add
+7z's dll path is hardcoded which I'm passing to `bit7z` library (possibly just add
 `ActionBuilder` and pass by cli interaface path to 7z's dll or pass path to
 dll folder for lookup)
 - Possible unsafe access to `Task` and their status in threads
