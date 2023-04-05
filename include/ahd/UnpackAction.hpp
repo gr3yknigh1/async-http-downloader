@@ -18,9 +18,14 @@ private:
     const std::filesystem::path m_ArchivePath;
     const std::filesystem::path m_DestanationPath;
 
-    // TODO: Handle Window's dll
-    // TODO: Ship 7z.so and 7z.dll with project
+#ifdef __UNIX__
     inline static const std::filesystem::path s_7zLibPath = "./lib/7z.so";
+#elif __WIN32__
+    inline static const std::filesystem::path s_7zLibPath = "./lib/7z.dll";
+#else
+#error "Can't support platform due lack of 7z dll"
+#endif
+
     inline static const std::unique_ptr<bit7z::Bit7zLibrary> s_7zLib =
         std::make_unique<bit7z::Bit7zLibrary>(UnpackAction::s_7zLibPath);
     inline static const std::unique_ptr<bit7z::BitFileExtractor> s_7zExtractor =
