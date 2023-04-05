@@ -28,13 +28,13 @@ int main(int argc, const char **argv)
         return EXIT_FAILURE;
     }
 
-    enum : uint32_t
+    enum Args : uint32_t
     {
-        EXECUTABLE_PATH_ARG,
-        CONFIG_PATH_ARG,
+        EXECUTABLE_PATH,
+        CONFIG_PATH,
     };
 
-    const std::filesystem::path configPath(argv[CONFIG_PATH_ARG]);
+    const std::filesystem::path configPath(argv[Args::CONFIG_PATH]);
 
     if (!std::filesystem::exists(configPath))
     {
