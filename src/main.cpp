@@ -60,12 +60,19 @@ public:
         const std::string target =
             configYaml[s_ConfigTargetField].as<std::string>();
 
-        TaskMap taskMap = {};
-        taskMap.reserve(configYaml[s_ConfigFilesField].size());
+        return MakeTaskMap(host, target, configYaml[s_ConfigFilesField]);
+    }
 
-        for (uint64_t i = 0; i < configYaml[s_ConfigFilesField].size(); ++i)
+private:
+    TaskMap MakeTaskMap(const std::string &host, const std::string &target,
+                        const YAML::Node filesYaml)
+    {
+        TaskMap taskMap;
+        taskMap.reserve(filesYaml.size());
+
+        for (uint64_t i = 0; i < filesYaml.size(); ++i)
         {
-            const YAML::Node fileYaml = configYaml[s_ConfigFilesField][i];
+            const YAML::Node fileYaml = filesYaml[i];
             ValidateFileYaml(i, fileYaml);
 
             std::shared_ptr<Task> task = std::make_shared<Task>();
@@ -87,7 +94,6 @@ public:
         return taskMap;
     }
 
-private:
     const std::vector<const char *> FindMissingFields(
         const YAML::Node &node, const std::vector<const char *> &requiredFields)
     {
