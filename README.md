@@ -2,7 +2,7 @@
 
 Async file downloader from http server
 
-> This project only tested on Linux.
+> Warning: This project only tested on Linux.
 
 ## Requirements
 
