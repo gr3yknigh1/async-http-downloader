@@ -13,11 +13,11 @@
 class YamlConfigReader : public ConfigReader
 {
 public:
-    TaskMap Read(const std::filesystem::path configPath) override;
+    TaskMap Read(const std::filesystem::path &configPath) override;
 
 private:
     TaskMap MakeTaskMap(const std::string &host, const std::string &target,
-                        const YAML::Node filesYaml);
+                        const YAML::Node &filesYaml);
 
     const std::vector<const char *> FindMissingFields(
         const YAML::Node &node,
@@ -31,10 +31,10 @@ private:
 
     std::vector<std::shared_ptr<Action>> DispatchActionsYaml(
         uint64_t index, const std::string &host, const std::string &target,
-        std::shared_ptr<Task> task, const YAML::Node actionsYaml);
+        std::shared_ptr<Task> &task, const YAML::Node &actionsYaml);
 
     std::vector<std::string> DispatchDependenciesYaml(
-        const YAML::Node dependenciesYaml);
+        const YAML::Node &dependenciesYaml);
 };
 
 #endif // YAMLCONFIGREADER_HPP_

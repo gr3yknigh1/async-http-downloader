@@ -1,20 +1,31 @@
 #include "ahd/YamlConfigReader.hpp"
+#include <iostream>
 
-TaskMap YamlConfigReader::Read(const std::filesystem::path configPath)
+TaskMap YamlConfigReader::Read(const std::filesystem::path &configPath)
 {
-    const YAML::Node configYaml = YAML::LoadFile(configPath);
-    ValidateConfigYaml(configYaml);
+    try
+    {
+        const YAML::Node configYaml = YAML::LoadFile(configPath);
+        ValidateConfigYaml(configYaml);
 
-    const std::string host = configYaml[s_ConfigHostField].as<std::string>();
-    const std::string target =
-        configYaml[s_ConfigTargetField].as<std::string>();
+        const std::string host =
+            configYaml[s_ConfigHostField].as<std::string>();
+        const std::string target =
+            configYaml[s_ConfigTargetField].as<std::string>();
 
-    return MakeTaskMap(host, target, configYaml[s_ConfigFilesField]);
+        return MakeTaskMap(host, target, configYaml[s_ConfigFilesField]);
+    }
+    catch (YAML::BadFile &e)
+    {
+        std::cerr << "Error: Invalid config file: " + configPath.string()
+                  << '\n';
+        throw e;
+    }
 }
 
 TaskMap YamlConfigReader::MakeTaskMap(const std::string &host,
                                       const std::string &target,
-                                      const YAML::Node filesYaml)
+                                      const YAML::Node &filesYaml)
 {
     TaskMap taskMap;
     taskMap.reserve(filesYaml.size());
@@ -155,7 +166,7 @@ void YamlConfigReader::ValidateFileYaml(uint64_t index,
 
 std::vector<std::shared_ptr<Action>> YamlConfigReader::DispatchActionsYaml(
     uint64_t index, const std::string &host, const std::string &target,
-    std::shared_ptr<Task> task, const YAML::Node actionsYaml)
+    std::shared_ptr<Task> &task, const YAML::Node &actionsYaml)
 {
     std::vector<std::shared_ptr<Action>> actions;
     actions.reserve(actionsYaml.size());
@@ -189,7 +200,7 @@ std::vector<std::shared_ptr<Action>> YamlConfigReader::DispatchActionsYaml(
 }
 
 std::vector<std::string> YamlConfigReader::DispatchDependenciesYaml(
-    const YAML::Node dependenciesYaml)
+    const YAML::Node &dependenciesYaml)
 {
     std::vector<std::string> dependencies;
     dependencies.reserve(dependenciesYaml.size());

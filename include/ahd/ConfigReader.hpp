@@ -15,7 +15,7 @@ public:
     {
     }
 
-    virtual TaskMap Read(const std::filesystem::path configPath) = 0;
+    virtual TaskMap Read(const std::filesystem::path &configPath) = 0;
 
 protected:
     inline static const char *s_ConfigHostField = "host";

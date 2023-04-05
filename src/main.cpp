@@ -38,14 +38,12 @@ int main(int argc, const char **argv)
 
     if (!std::filesystem::exists(configPath))
     {
-        std::fprintf(stderr, "ERROR: given file path doesn't exitsts: '%s'\n",
+        std::fprintf(stderr, "Error: given file path doesn't exists: '%s'\n",
                      configPath.c_str());
         return EXIT_FAILURE;
     }
 
-    const std::unique_ptr<ConfigReader> configReader =
-        DispatchConfigType(configPath);
-
+    const auto configReader = DispatchConfigType(configPath);
     TaskMap taskMap = configReader->Read(configPath);
     TaskRunner runner(taskMap);
     runner.Run();
