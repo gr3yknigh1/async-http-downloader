@@ -97,8 +97,8 @@ int main(int argc, const char **argv)
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
 
-    std::unordered_map<std::string, std::shared_ptr<Task>> fileTasks = {};
-    fileTasks.reserve(configYaml[CONFIG_FILES_FIELD].size());
+    TaskMap taskMap = {};
+    taskMap.reserve(configYaml[CONFIG_FILES_FIELD].size());
 
     for (uint64_t i = 0; i < configYaml[CONFIG_FILES_FIELD].size(); ++i)
     {
@@ -118,9 +118,9 @@ int main(int argc, const char **argv)
             return EXIT_FAILURE;
         }
 
-        std::shared_ptr<Task> fileTask = std::make_shared<Task>();
-        fileTask->file = fileYaml[FILE_FILE_FIELD].as<std::string>();
-        fileTask->actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
+        std::shared_ptr<Task> task = std::make_shared<Task>();
+        task->file = fileYaml[FILE_FILE_FIELD].as<std::string>();
+        task->actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
 
         for (const YAML::Node actionYaml : fileYaml[FILE_ACTIONS_FIELD])
         {
@@ -128,14 +128,14 @@ int main(int argc, const char **argv)
             if (actionString == "download")
             {
                 // TODO: Add option for working directory
-                fileTask->actions.push_back(new DownloadAction(
-                    host + target + fileTask->file, fileTask->file));
+                task->actions.push_back(new DownloadAction(
+                    host + target + task->file, task->file));
             }
             else if (actionString == "unpack")
             {
                 // TODO: Add option for unpack directory
-                fileTask->actions.push_back(
-                    new UnpackAction(fileTask->file, "."));
+                task->actions.push_back(
+                    new UnpackAction(task->file, "."));
             }
             else
             {
@@ -147,27 +147,27 @@ int main(int argc, const char **argv)
 
         if (fileYaml[FILE_DEPENDENCIES_FIELD])
         {
-            fileTask->dependencies.reserve(
+            task->dependencies.reserve(
                 fileYaml[FILE_DEPENDENCIES_FIELD].size());
             for (const YAML::Node dependencyYaml :
                  fileYaml[FILE_DEPENDENCIES_FIELD])
             {
-                fileTask->dependencies.emplace_back(
+                task->dependencies.emplace_back(
                     dependencyYaml.as<std::string>());
             }
         }
 
-        fileTasks[fileYaml[FILE_NAME_FIELD].as<std::string>()] = fileTask;
+        taskMap[fileYaml[FILE_NAME_FIELD].as<std::string>()] = task;
     }
 
     // NOTE: Validating deps
-    for (const auto &[name, task] : fileTasks)
+    for (const auto &[name, task] : taskMap)
     {
         for (const std::string &dependency : task->dependencies)
         {
             // NOTE: Searching non-existing deps
-            const auto search = fileTasks.find(dependency);
-            if (search == fileTasks.end())
+            const auto search = taskMap.find(dependency);
+            if (search == taskMap.end())
             {
                 std::fprintf(stderr,
                              "ERROR: Can't find dependency '%s' that '%s' task "
@@ -199,9 +199,8 @@ int main(int argc, const char **argv)
         }
     }
 
-    TaskRunner ftr(fileTasks);
-    ftr.Run();
+    TaskRunner runner(taskMap);
+    runner.Run();
 
-    // TODO: Free memory after `fileTasks`
     return EXIT_SUCCESS;
 }
