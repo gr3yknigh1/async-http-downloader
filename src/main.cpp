@@ -97,7 +97,7 @@ int main(int argc, const char **argv)
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
 
-    std::unordered_map<std::string, FileTask *> fileTasks = {};
+    std::unordered_map<std::string, std::shared_ptr<FileTask>> fileTasks = {};
     fileTasks.reserve(configYaml[CONFIG_FILES_FIELD].size());
 
     for (uint64_t i = 0; i < configYaml[CONFIG_FILES_FIELD].size(); ++i)
@@ -118,9 +118,9 @@ int main(int argc, const char **argv)
             return EXIT_FAILURE;
         }
 
-        FileTask *fileTask = new FileTask;
+        std::shared_ptr<FileTask> fileTask = std::make_shared<FileTask>();
         fileTask->file = fileYaml[FILE_FILE_FIELD].as<std::string>();
-        // fileTask.actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
+        fileTask->actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
 
         for (const YAML::Node actionYaml : fileYaml[FILE_ACTIONS_FIELD])
         {
@@ -161,12 +161,9 @@ int main(int argc, const char **argv)
     }
 
     // NOTE: Validating deps
-    for (const std::pair<std::string, FileTask *> &pair : fileTasks)
+    for (const auto &[name, task] : fileTasks)
     {
-        const std::string currentTaskName = pair.first;
-        const FileTask *currentFileTask = pair.second;
-
-        for (const std::string &dependency : currentFileTask->dependencies)
+        for (const std::string &dependency : task->dependencies)
         {
             // NOTE: Searching non-existing deps
             const auto search = fileTasks.find(dependency);
@@ -175,28 +172,28 @@ int main(int argc, const char **argv)
                 std::fprintf(stderr,
                              "ERROR: Can't find dependency '%s' that '%s' task "
                              "requires\n",
-                             dependency.c_str(), currentTaskName.c_str());
+                             dependency.c_str(), name.c_str());
                 return EXIT_FAILURE;
             }
 
             // NOTE: Can't depend on self
-            if (search->first == currentTaskName)
+            if (search->first == name)
             {
                 std::fprintf(stderr, "ERROR: Can't depend on self '%s'\n",
-                             currentTaskName.c_str());
+                             name.c_str());
                 return EXIT_FAILURE;
             }
 
             // NOTE: Searching cirqle deps
-            const FileTask *dependencyTask = search->second;
+            const std::shared_ptr<FileTask> dependencyTask = search->second;
             const auto dependencyTaskDeps = dependencyTask->dependencies;
             if (std::find(dependencyTaskDeps.begin(), dependencyTaskDeps.end(),
-                          currentTaskName) != dependencyTaskDeps.end())
+                          name) != dependencyTaskDeps.end())
             {
                 std::fprintf(stderr,
                              "ERROR: Found cirqle dependency between '%s' and "
                              "'%s' tasks requires\n",
-                             dependency.c_str(), currentTaskName.c_str());
+                             dependency.c_str(), name.c_str());
                 return EXIT_FAILURE;
             }
         }

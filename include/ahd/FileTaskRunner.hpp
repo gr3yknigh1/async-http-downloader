@@ -6,13 +6,15 @@
 #include <cstdio>
 #include <future>
 #include <iostream>
+#include <memory>
 #include <unordered_map>
 
 class FileTaskRunner
 {
 public:
-    FileTaskRunner(std::unordered_map<std::string, FileTask *> &fileTasks)
-        : m_FileTasks(fileTasks), m_FileTaskCVs()
+    FileTaskRunner(
+        std::unordered_map<std::string, std::shared_ptr<FileTask>> &fileTasks)
+        : m_FileTasks(fileTasks)
     {
     }
 
@@ -21,11 +23,8 @@ public:
         std::vector<std::future<void>> workers;
         workers.reserve(m_FileTasks.size());
 
-        for (const std::pair<std::string, FileTask *> &pair : m_FileTasks)
+        for (const auto &[name, task] : m_FileTasks)
         {
-            const std::string taskName = pair.first;
-            const FileTask *fileTask = pair.second;
-
             const auto executionFunc = [](const FileTask *fileTask) {
                 for (const Action *action : fileTask->actions)
                 {
@@ -34,7 +33,7 @@ public:
             };
 
             workers.emplace_back(
-                std::async(std::launch::async, executionFunc, fileTask));
+                std::async(std::launch::async, executionFunc, task.get()));
         }
 
         for (const std::future<void> &w : workers)
@@ -44,8 +43,7 @@ public:
     }
 
 private:
-    std::unordered_map<std::string, FileTask *> m_FileTasks;
-    std::unordered_map<std::string, std::condition_variable> m_FileTaskCVs;
+    std::unordered_map<std::string, std::shared_ptr<FileTask>> m_FileTasks;
 };
 
 #endif // FILETASKRUNNER_HPP_
