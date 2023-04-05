@@ -19,6 +19,7 @@ private:
     const std::filesystem::path m_DestanationPath;
 
     // TODO: Add option in CLI to customly specify 7z dll
+    // TODO: Add option for library directory specification
 #ifdef __UNIX__
     inline static const std::filesystem::path s_7zLibPath = "./lib/7z.so";
 #elif __WIN32__
