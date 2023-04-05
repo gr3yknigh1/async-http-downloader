@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-struct FileTask
+struct Task
 {
     std::string file;
     std::vector<Action *> actions;

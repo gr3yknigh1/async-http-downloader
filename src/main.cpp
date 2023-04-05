@@ -11,8 +11,8 @@
 
 #include "ahd/Action.hpp"
 #include "ahd/DownloadAction.hpp"
-#include "ahd/FileTask.hpp"
-#include "ahd/FileTaskRunner.hpp"
+#include "ahd/Task.hpp"
+#include "ahd/TaskRunner.hpp"
 #include "ahd/UnpackAction.hpp"
 
 const char *CONFIG_HOST_FIELD = "host";
@@ -95,7 +95,7 @@ int main(int argc, const char **argv)
     const std::string target =
         configYaml[CONFIG_TARGET_FIELD].as<std::string>();
 
-    std::unordered_map<std::string, std::shared_ptr<FileTask>> fileTasks = {};
+    std::unordered_map<std::string, std::shared_ptr<Task>> fileTasks = {};
     fileTasks.reserve(configYaml[CONFIG_FILES_FIELD].size());
 
     for (uint64_t i = 0; i < configYaml[CONFIG_FILES_FIELD].size(); ++i)
@@ -116,7 +116,7 @@ int main(int argc, const char **argv)
             return EXIT_FAILURE;
         }
 
-        std::shared_ptr<FileTask> fileTask = std::make_shared<FileTask>();
+        std::shared_ptr<Task> fileTask = std::make_shared<Task>();
         fileTask->file = fileYaml[FILE_FILE_FIELD].as<std::string>();
         fileTask->actions.reserve(fileYaml[FILE_ACTIONS_FIELD].size());
 
@@ -183,7 +183,7 @@ int main(int argc, const char **argv)
             }
 
             // NOTE: Searching cirqle deps
-            const std::shared_ptr<FileTask> dependencyTask = search->second;
+            const std::shared_ptr<Task> dependencyTask = search->second;
             const auto dependencyTaskDeps = dependencyTask->dependencies;
             if (std::find(dependencyTaskDeps.begin(), dependencyTaskDeps.end(),
                           name) != dependencyTaskDeps.end())
@@ -197,7 +197,7 @@ int main(int argc, const char **argv)
         }
     }
 
-    FileTaskRunner ftr(fileTasks);
+    TaskRunner ftr(fileTasks);
     ftr.Run();
 
     // TODO: Free memory after `fileTasks`

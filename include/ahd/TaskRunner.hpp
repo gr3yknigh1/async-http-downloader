@@ -2,15 +2,15 @@
 #define FILETASKRUNNER_HPP_
 
 #include "ahd/Action.hpp"
-#include "ahd/FileTask.hpp"
+#include "ahd/Task.hpp"
 #include <future>
 #include <unordered_map>
 
-class FileTaskRunner
+class TaskRunner
 {
 public:
-    FileTaskRunner(
-        std::unordered_map<std::string, std::shared_ptr<FileTask>> &fileTasks)
+    TaskRunner(
+        std::unordered_map<std::string, std::shared_ptr<Task>> &fileTasks)
         : m_FileTasks(fileTasks), m_FileTaskStatuses()
     {
         m_FileTaskStatuses.reserve(m_FileTasks.size());
@@ -28,7 +28,7 @@ public:
         for (const auto &[name, task] : m_FileTasks)
         {
             const auto executionFunc =
-                [&](const FileTask *fileTask,
+                [&](const Task *fileTask,
                     const std::unordered_map<std::string, bool>
                         *fileTaskStatuses,
                     bool *statusOut) {
@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<FileTask>> m_FileTasks;
+    std::unordered_map<std::string, std::shared_ptr<Task>> m_FileTasks;
     std::unordered_map<std::string, bool> m_FileTaskStatuses;
 };
 
