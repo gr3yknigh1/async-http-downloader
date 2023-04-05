@@ -37,6 +37,14 @@ cd ./server
 make
 ```
 
+OR (without GNU/Make)
+
+```bash
+cd ./server
+pip3 install -r ./requirements.txt
+python3 ./main.py
+```
+
 ## Known bugs
 
 - Bad exception handling during `Action` execution in threads
