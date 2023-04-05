@@ -219,13 +219,13 @@ private:
             if (actionString == "download")
             {
                 // TODO: Add option for working directory
-                actions.push_back(
+                actions.emplace_back(
                     new DownloadAction(host + target + task->file, task->file));
             }
             else if (actionString == "unpack")
             {
                 // TODO: Add option for unpack directory
-                actions.push_back(new UnpackAction(task->file, "."));
+                actions.emplace_back(new UnpackAction(task->file, "."));
             }
             else
             {
