@@ -199,7 +199,7 @@ int main(int argc, const char **argv)
         }
     }
 
-    const FileTaskRunner ftr(fileTasks);
+    FileTaskRunner ftr(fileTasks);
     ftr.Run();
 
     // TODO: Free memory after `fileTasks`
