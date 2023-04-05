@@ -23,14 +23,15 @@ using TaskMap = std::unordered_map<std::string, std::shared_ptr<Task>>;
 class ConfigReader
 {
 public:
+    ConfigReader()
+    {
+    }
+
     virtual ~ConfigReader()
     {
     }
 
-    virtual TaskMap Read(const std::filesystem::path configPath)
-    {
-        throw std::exception();
-    }
+    virtual TaskMap Read(const std::filesystem::path configPath) = 0;
 
 protected:
     inline static const char *s_ConfigHostField = "host";
