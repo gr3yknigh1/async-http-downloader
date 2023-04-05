@@ -25,8 +25,6 @@ public:
         std::vector<std::future<void>> workers;
         workers.reserve(m_FileTasks.size());
 
-        std::mutex m;
-
         for (const auto &[name, task] : m_FileTasks)
         {
             const auto executionFunc =
