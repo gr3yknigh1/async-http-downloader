@@ -28,6 +28,8 @@ const char *FILE_DEPENDENCIES_FIELD = "dependencies";
 const std::vector<const char *> REQUIRED_FILE_FIELDS = {
     FILE_NAME_FIELD, FILE_FILE_FIELD, FILE_ACTIONS_FIELD};
 
+using TaskMap = std::unordered_map<std::string, std::shared_ptr<Task>>;
+
 const std::vector<const char *> FindMissingFields(
     YAML::Node node, const std::vector<const char *> requiredFields)
 {
